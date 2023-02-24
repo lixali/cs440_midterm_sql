@@ -50,11 +50,11 @@ print(rows2)
 print(len(rows2))
 
 
-sql = '''drop table employee 
+sql = '''drop table if exists employee 
 '''
 cur.execute(sql)
 
-sql = '''drop table company_info 
+sql = '''drop table if exists company_info 
 '''
 cur.execute(sql)
 
