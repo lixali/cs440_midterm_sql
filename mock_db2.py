@@ -7,12 +7,16 @@ tags = ['learning', 'dance', 'gardening', 'writing', 'shopping', 'painting', 'co
         'acting', 'hunting']
 
 companies = ["amazon", "google", "facebook", "oracle", "uber", "airbnb", "microsoft", "apple", "netflix"]
-f = open("MOCK_DATA.json")
-f2 = open("MOCK_DATA2.json")
+
+
+schema1 = ["customer_id", "customer_name", "email", "phone", "home_phone"]
+schema2 = ["order_id", "order_date", "total_amount", "customer_id"]
+f = open("customer.json")
+f2 = open("order.json")
 data = json.load(f)
 data2 = json.load(f2)
 
-con = sqlite3.connect("employee2.db")
+con = sqlite3.connect("customers2.db")
 cur = con.cursor()
 
 rows = []
@@ -21,8 +25,6 @@ for ele in data:
     new_json = {}
     if random.randint(1,100) > 20:
         new_json["email"] = ele["email"]
-    if random.randint(1,100) > 20:
-        new_json["cell_phone"] = ele["cell_phone"]
     if random.randint(1,100) > 20:
         new_json["home_phone"] = ele["home_phone"]
     
@@ -35,15 +37,17 @@ for ele in data:
     new_tag = random.choices(tags, k = tag_num)
 
     new_json["tags"] = new_tag
-
-    rows.append( (ele['employee_id'], ele['first_name'], ele['last_name'], ele['age'], ele['gender'], random.choice(companies), ele['department'], ele['country'], ele['salary'], json.dumps(new_json)) )
+    # new_json["tags"] = new_tag
+    # new_tuple = (ele[i] for i in schema1)
+    # new_tuple2 = (list(new_tuple) + [json.dumps(new_json)]) 
+    rows.append((ele["customer_id"], ele["customer_name"], ele["email"], ele["phone"], json.dumps(new_json)))
 
 
 
 
 for ele in data2:
 
-    rows2.append((ele["country"], ele["security_clearance"]))
+    rows2.append((ele["order_id"], ele["order_date"], ele["total_amount"], ele["customer_id"]))
 
 print(rows)
 print(len(rows))
@@ -51,38 +55,34 @@ print(rows2)
 print(len(rows2))
 
 
-sql = '''drop table if exists employee 
+sql = '''drop table if exists Customers
 '''
 cur.execute(sql)
 
-sql = '''drop table if exists company_info 
+sql = '''drop table if exists Order
 '''
 cur.execute(sql)
 
 
-sql = '''create table employee (
-	employee_id INT,
-	first_name VARCHAR(50),
-	last_name VARCHAR(50),
-	age INT,
-	gender VARCHAR(50),
-    company_name VARCHAR(50),
-	department VARCHAR(50),
-	country VARCHAR(50),
-	salary INT,
+sql = '''create table Customers (
+    customer_id INT PRIMARY KEY,
+    customer_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
 	extra JSON
 )'''
 cur.execute(sql)
 
-sql = '''create table company_info (
-	country VARCHAR(50),
-	security_clearance INT
+sql = '''create table Order (
+order_id INT PRIMARY KEY,
+order_date DATA NOT NULL,
+total_amount INT NOT NULL,
+customer_id INT NOT NULL
 )'''
 cur.execute(sql)
 
-
-cur.executemany("INSERT INTO employee VALUES(?,?,?,?,?,?,?,?,?,?)", rows)
-cur.executemany("INSERT INTO company_info VALUES(?,?)", rows2)
+cur.executemany("INSERT INTO Customers VALUES(?,?,?,?,?)", rows)
+cur.executemany("INSERT INTO Orders VALUES(?,?,?,?)", rows2)
 con.commit()
 #    cur.execute("INSERT INTO User VALUES({}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(ele['id'], ele['user_id'], ele['username'], ele['first_name'], ele['last_name'], ele['gender'], ele['city'], json.dumps(new_json), ele['register_date'], ele['recent_login_date']))
 #    con.commit()
